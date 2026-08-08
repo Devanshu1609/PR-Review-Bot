@@ -2,7 +2,7 @@ name: " Dev PR Review Bot"
 description: "Runs PR review checks and posts comments/suggestions.\n"
 inputs:
   github_token:
-    description: "GitHub token (usually ${{ secrets.GITHUB_TOKEN }})"
+    description: "GitHub token used by the action"
     required: true
   config:
     description: "Path to config file in repo (optional)"
@@ -14,5 +14,5 @@ runs:
     - "${{ inputs.github_token }}"
     - "${{ inputs.config }}"
 branding:
-  icon: "robot"
+  icon: "shield"
   color: "blue"
