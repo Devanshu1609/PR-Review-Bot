@@ -1,5 +1,5 @@
-name: "PR Review Bot"
-description: "Runs PR review checks and posts comments/suggestions.\nAdjust the entrypoint implementation to suit your repository's review rules."
+name: " Dev PR Review Bot"
+description: "Runs PR review checks and posts comments/suggestions.\n"
 inputs:
   github_token:
     description: "GitHub token (usually ${{ secrets.GITHUB_TOKEN }})"
