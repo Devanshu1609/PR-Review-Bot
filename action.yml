@@ -1,31 +1,18 @@
-name: 'PR Review Agent (Python)'
-description: 'Review PRs for security issues and update docs (Python)'
+name: "PR Review Bot"
+description: "Runs PR review checks and posts comments/suggestions.\nAdjust the entrypoint implementation to suit your repository's review rules."
 inputs:
-  github-token:
-    description: 'GitHub token'
+  github_token:
+    description: "GitHub token (usually ${{ secrets.GITHUB_TOKEN }})"
     required: true
-  openai-api-key:
-    description: 'OpenAI API key'
-    required: true
-  docs-token:
-    description: 'Token to push to docs repo (optional)'
-    required: false
-  confluence-base-url:
-    description: 'Confluence base URL (optional)'
-    required: false
-  confluence-username:
-    description: 'Confluence username/email (optional)'
-    required: false
-  confluence-api-token:
-    description: 'Confluence API token (optional)'
+  config:
+    description: "Path to config file in repo (optional)"
     required: false
 runs:
-  using: 'docker'
-  image: 'Dockerfile'
+  using: "docker"
+  image: "Dockerfile"
   args:
-    - "${{ inputs.github-token }}"
-    - "${{ inputs.openai-api-key }}"
-    - "${{ inputs.docs-token }}"
-    - "${{ inputs.confluence-base-url }}"
-    - "${{ inputs.confluence-username }}"
-    - "${{ inputs.confluence-api-token }}"
+    - "${{ inputs.github_token }}"
+    - "${{ inputs.config }}"
+branding:
+  icon: "robot"
+  color: "blue"
