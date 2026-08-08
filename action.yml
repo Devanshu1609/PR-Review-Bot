@@ -1,6 +1,12 @@
 name: "Dev PR Review Bot"
 
-description: "Runs PR review checks and posts comments/suggestions."
+description: "AI-powered GitHub Pull Request review bot using Groq."
+
+author: "Devanshu1609"
+
+branding:
+  icon: "shield"
+  color: "blue"
 
 inputs:
   github_token:
@@ -12,7 +18,7 @@ inputs:
     required: true
 
   config:
-    description: "Path to config file in the repository"
+    description: "Path to the configuration file"
     required: false
     default: ".mifoshawk.yml"
 
