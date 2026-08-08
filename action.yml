@@ -1,0 +1,31 @@
+name: 'PR Review Agent (Python)'
+description: 'Review PRs for security issues and update docs (Python)'
+inputs:
+  github-token:
+    description: 'GitHub token'
+    required: true
+  openai-api-key:
+    description: 'OpenAI API key'
+    required: true
+  docs-token:
+    description: 'Token to push to docs repo (optional)'
+    required: false
+  confluence-base-url:
+    description: 'Confluence base URL (optional)'
+    required: false
+  confluence-username:
+    description: 'Confluence username/email (optional)'
+    required: false
+  confluence-api-token:
+    description: 'Confluence API token (optional)'
+    required: false
+runs:
+  using: 'docker'
+  image: 'Dockerfile'
+  args:
+    - "${{ inputs.github-token }}"
+    - "${{ inputs.openai-api-key }}"
+    - "${{ inputs.docs-token }}"
+    - "${{ inputs.confluence-base-url }}"
+    - "${{ inputs.confluence-username }}"
+    - "${{ inputs.confluence-api-token }}"

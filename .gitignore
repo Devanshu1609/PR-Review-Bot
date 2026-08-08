@@ -1,0 +1,9 @@
+# Common files to ignore
+__pycache__/
+*.pyc
+.env
+.DS_Store
+dist/
+.mypy_cache/
+.pytest_cache
+.venv/
