@@ -1,22 +1,33 @@
 # Example configuration for PR Review Agent
 
 review:
-  model: "gpt-4o-mini"
+  model: "llama-3.3-70b-versatile"
+
   files:
     include:
       - "src/**"
+
     exclude:
       - "**/__tests__/**"
+
   security:
     rules:
       - id: slack-webhook
+
         description: "Slack webhook URL detected"
+
         pattern: "https://hooks\\.slack\\.com/services/T[A-Z0-9_]+/B[A-Z0-9_]+/[A-Za-z0-9_]+"
+
         severity: high
-        fileExtensions: [".py", ".ts", ".js"]
+
+        fileExtensions:
+          - ".py"
+          - ".ts"
+          - ".js"
 
 documentation:
   enabled: true
+
   documents:
     - platform: gitbook
       path: "/owner/repo/path"

@@ -1,18 +1,46 @@
-name: " Dev PR Review Bot"
-description: "Runs PR review checks and posts comments/suggestions.\n"
+name: "Dev PR Review Bot"
+
+description: "Runs PR review checks and posts comments/suggestions."
+
 inputs:
   github_token:
     description: "GitHub token used by the action"
     required: true
+
+  groq_api_key:
+    description: "Groq API key used for AI-powered PR review"
+    required: true
+
   config:
-    description: "Path to config file in repo (optional)"
+    description: "Path to config file in the repository"
     required: false
+    default: ".mifoshawk.yml"
+
 runs:
-  using: "docker"
-  image: "Dockerfile"
-  args:
-    - "${{ inputs.github_token }}"
-    - "${{ inputs.config }}"
-branding:
-  icon: "shield"
-  color: "blue"
+  using: "composite"
+
+  steps:
+    - name: Set up Python
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      shell: bash
+      run: |
+        python -m pip install --upgrade pip
+        python -m pip install -r "${{ github.action_path }}/requirements.txt"
+
+    - name: Run PR Review Bot
+      shell: bash
+      env:
+        GITHUB_TOKEN: ${{ inputs.github_token }}
+        GROQ_API_KEY: ${{ inputs.groq_api_key }}
+        CONFIG_PATH: ${{ inputs.config }}
+        GITHUB_REPOSITORY: ${{ github.repository }}
+        GITHUB_EVENT_NAME: ${{ github.event_name }}
+        GITHUB_EVENT_PATH: ${{ github.event_path }}
+        PR_NUMBER: ${{ github.event.pull_request.number }}
+        PYTHONPATH: ${{ github.action_path }}
+      run: |
+        python -m src

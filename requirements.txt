@@ -1,2 +1,5 @@
 PyYAML
 requests
+httpx
+unidiff
+PyGithub

@@ -59,29 +59,77 @@ def get_pr_context(token: str, owner: str, repo: str, pr_number: int) -> Dict[st
     return {"diff": diff_text, "title": title, "description": body, "commit_messages": commit_messages}
 
 
-def load_state(token: str, owner: str, repo: str, pr_number: int) -> Optional[Dict[str, Any]]:
+def load_state(
+    token: str,
+    owner: str,
+    repo: str,
+    pr_number: int
+) -> Optional[Dict[str, Any]]:
     """Find the summary comment containing the state marker and return parsed JSON state.
-    Returns {'comment_id': id, 'state': [...] } or None.
+
+    Returns:
+        {'comment_id': id, 'state': [...]}
+        or None if no valid state is found.
     """
+
     g = Github(token)
     repository = g.get_repo(f"{owner}/{repo}")
     pr = repository.get_pull(pr_number)
     comments = pr.get_issue_comments()
+
     for c in comments:
         body = c.body or ""
-        if STATE_MARKER in body:
-            # Expect follow-on JSON block
-            try:
-                marker_index = body.index(STATE_MARKER)
-                json_part = body[marker_index + len(STATE_MARKER):].strip()
-                # JSON may be fenced; try to extract a JSON object
-                if json_part.startswith("```"):
-                    json_part = json_part.strip('`')
-                data = json.loads(json_part)
-                return {"comment_id": c.id, "state": data}
-            except Exception:
-                logger.exception("Failed to parse state JSON from comment")
-                return None
+
+        if STATE_MARKER not in body:
+            continue
+
+        try:
+            # Get everything after the state marker.
+            marker_index = body.index(STATE_MARKER)
+            json_part = body[
+                marker_index + len(STATE_MARKER):
+            ].strip()
+
+            # Remove the closing HTML comment marker.
+            if "-->" in json_part:
+                json_part = json_part.split("-->", 1)[0].strip()
+
+            # Handle fenced JSON if present.
+            if json_part.startswith("```"):
+                lines = json_part.splitlines()
+
+                # Remove opening ```json / ```
+                if lines:
+                    lines = lines[1:]
+
+                # Remove closing ```
+                if lines and lines[-1].strip() == "```":
+                    lines = lines[:-1]
+
+                json_part = "\n".join(lines).strip()
+
+            data = json.loads(json_part)
+
+            return {
+                "comment_id": c.id,
+                "state": data,
+            }
+
+        except (json.JSONDecodeError, ValueError, TypeError) as exc:
+            logger.warning(
+                "Failed to parse state JSON from comment %s: %s",
+                c.id,
+                exc,
+            )
+            continue
+
+        except Exception:
+            logger.exception(
+                "Unexpected error while loading state from comment %s",
+                c.id,
+            )
+            continue
+
     return None
 
 
@@ -189,11 +237,16 @@ def post_review_comment(
 
     if existing_comment_id:
         try:
-            comment = repository.get_issue_comment(existing_comment_id)
-            comment.edit(body)
+            for comment in pr.get_issue_comments():
+                if comment.id == existing_comment_id:
+                    comment.edit(body)
 
-            logger.info("Updated existing summary comment")
-            return
+                    logger.info("Updated existing summary comment")
+                    return
+
+            raise RuntimeError(
+                f"Could not find issue comment with ID {existing_comment_id}"
+            )
 
         except Exception:
             logger.exception(
