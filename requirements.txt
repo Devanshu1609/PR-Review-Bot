@@ -3,3 +3,4 @@ requests
 httpx
 unidiff
 PyGithub
+python-dotenv
